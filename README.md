@@ -1,4 +1,10 @@
 # SecureStorage plugin for Apache Cordova
+## fork from [Maurys](https://github.com/mibrito707/cordova-plugin-secure-storage) and [crypho](https://github.com/crypho/cordova-plugin-secure-storage.git)
+
+This fork repo fixed com.android.credentials.UNLOCK crash on Android Q and support API 29 [biometrics](https://developer.android.com/reference/android/hardware/biometrics/package-summary) 
+
+[KeyguardManager](https://developer.android.com/reference/android/app/KeyguardManager) createConfirmDeviceCredentialIntent deprecated in API level 29
+start to using [biometrics](https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder.html#setDeviceCredentialAllowed(boolean))
 
 ## Introduction
 
