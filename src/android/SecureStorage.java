@@ -1,8 +1,10 @@
 package com.crypho.plugins;
 
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
 
+import android.annotation.TargetApi;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Base64;
@@ -17,6 +19,8 @@ import org.apache.cordova.CordovaPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
+
+import android.hardware.biometrics.BiometricPrompt;
 
 public class SecureStorage extends CordovaPlugin {
     private static final String TAG = "SecureStorage";
@@ -220,9 +224,30 @@ public class SecureStorage extends CordovaPlugin {
      *
      * @param title
      * @param description
-     * @// TODO: 2019-07-08 Use  BiometricPrompt#setDeviceCredentialAllowed for API 29+
+     * @//
      */
+
     private void unlockCredentials(String title, String description) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
+            unlockLegacyCredentials(title, description);
+        } else if( Build.VERSION.SDK_INT > Build.VERSION_CODES.M){
+            // unlockBioCredentials(title, description);
+            unlockKeyGuardCredentials(title, description);
+        } else {
+            unlockKeyGuardCredentials(title, description);
+        }
+    }
+
+    private void unlockLegacyCredentials(String title, String description) {
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                Intent intent = new Intent("com.android.credentials.UNLOCK");
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void unlockKeyGuardCredentials(String title, String description) {
         cordova.getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 KeyguardManager keyguardManager = (KeyguardManager) (getContext().getSystemService(Context.KEYGUARD_SERVICE));
@@ -231,6 +256,29 @@ public class SecureStorage extends CordovaPlugin {
             }
         });
     }
+
+
+    /**
+     * Create the Confirm Credentials screen.
+     * You can customize the title and description or Android will provide a generic one for you if you leave it null
+     *
+     * @param title
+     * @param description
+     * @//
+     */
+    // @TargetApi(Build.VERSION_CODES.Q)
+    // private void unlockBioCredentials(String title, String description) {
+    //     cordova.getActivity().runOnUiThread(new Runnable() {
+    //         public void run() {
+    //             BiometricPrompt prompt = new BiometricPrompt.Builder()
+    //             .setTitle("Biometric login for my app")
+    //             .setSubtitle("Log in using your biometric credential")
+    //             .setNegativeButtonText("Cancel")
+    //             .setDeviceCredentialAllowed(true)
+    //             .build();
+    //         }
+    //     });
+    // }
 
     /**
      * Generate Encryption Keys in the background.
